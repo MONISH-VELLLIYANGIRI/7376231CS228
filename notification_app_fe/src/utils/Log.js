@@ -1,3 +1,5 @@
+import authService from './authService';
+
 const Log = (stack, level, packageName, message) => {
   const timestamp = new Date().toISOString();
   const logEntry = `[${timestamp}] [${stack.toUpperCase()}] [${level.toUpperCase()}] [${packageName}] ${message}`;
@@ -23,14 +25,23 @@ const Log = (stack, level, packageName, message) => {
       console.log(logEntry);
   }
 
-  // Send log to backend service
+  // Send log to backend service with Bearer token
   if (typeof window !== 'undefined') {
     try {
+      // Get access token (if available) to authenticate log requests
+      const accessToken = authService.accessToken;
+      const headers = {
+        'Content-Type': 'application/json',
+      };
+      
+      // Add Bearer token if available
+      if (accessToken) {
+        headers['Authorization'] = `Bearer ${accessToken}`;
+      }
+
       fetch('http://4.224.186.213/evaluation-service/log', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers,
         body: JSON.stringify({
           stack,
           level,

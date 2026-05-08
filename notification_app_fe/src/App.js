@@ -4,6 +4,7 @@ import FilterBar from './components/FilterBar';
 import PriorityList from './components/PriorityList';
 import NotificationList from './components/NotificationList';
 import Log from './utils/Log';
+import authService from './utils/authService';
 
 const App = () => {
   const [notifications, setNotifications] = useState([]);
@@ -17,7 +18,7 @@ const App = () => {
   const itemsPerPage = 10;
   const apiBaseUrl = 'http://4.224.186.213/evaluation-service/notifications';
 
-  // Fetch notifications from API
+  // Fetch notifications from API with Bearer token
   const fetchNotifications = async (filterType, pageNum) => {
     setLoading(true);
     setError(null);
@@ -25,12 +26,25 @@ const App = () => {
     try {
       Log('frontend', 'info', 'api', `Fetching notifications - filter: ${filterType}, page: ${pageNum}`);
       
+      // Get access token (will fetch if expired)
+      const accessToken = await authService.getAccessToken();
+      
+      if (!accessToken) {
+        throw new Error('No access token available. Please check authentication credentials.');
+      }
+
       let url = `${apiBaseUrl}?limit=${itemsPerPage}&page=${pageNum}`;
       if (filterType !== 'All') {
         url += `&notification_type=${filterType}`;
       }
 
-      const response = await fetch(url);
+      const response = await fetch(url, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${accessToken}`,
+        },
+      });
       
       if (!response.ok) {
         throw new Error(`API Error: ${response.status} ${response.statusText}`);
@@ -56,7 +70,7 @@ const App = () => {
       Log('frontend', 'info', 'api', `Successfully fetched ${normalizedNotifications.length} notifications`);
     } catch (err) {
       Log('frontend', 'error', 'api', `Failed to fetch notifications: ${err.message}`);
-      setError(`Failed to load notifications: ${err.message}. Please check your internet connection and try again.`);
+      setError(`Failed to load notifications: ${err.message}`);
       setNotifications([]);
     } finally {
       setLoading(false);
@@ -66,6 +80,17 @@ const App = () => {
   // Load notifications on component mount only
   // Filter/page changes are handled by dedicated handler functions
   useEffect(() => {
+    // Initialize authentication with user credentials
+    authService.setCredentials({
+      email: 'monish.cs23@bitsathy.ac.in',
+      name: 'MONISH V',
+      rollNo: '7376231CS228',
+      accessCode: 'uKaJfm',
+      clientID: '28821bec-94df-4617-9104-d2a3ceae3734',
+      clientSecret: 'ExFGTBcrXEaneUFG',
+    });
+
+    // Fetch notifications after auth is initialized
     fetchNotifications(filter, page);
     // Intentionally empty - we only want to load once on mount
     // eslint-disable-next-line react-hooks/exhaustive-deps
