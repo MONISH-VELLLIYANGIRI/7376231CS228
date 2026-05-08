@@ -39,7 +39,7 @@ const Log = (stack, level, packageName, message) => {
         headers['Authorization'] = `Bearer ${accessToken}`;
       }
 
-      fetch('http://4.224.186.213/evaluation-service/log', {
+      fetch('http://localhost:5000/api/log', {
         method: 'POST',
         headers,
         body: JSON.stringify({

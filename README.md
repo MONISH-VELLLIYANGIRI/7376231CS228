@@ -1,234 +1,115 @@
 # Campus Notifications Frontend - 7376231CS228
 
-Complete React-based campus notification system with real API integration, priority inbox, filtering, and pagination.
+This submission is a React notification dashboard built around a live campus API. It is designed to show the actual notification flow end-to-end: authentication, fetch, filtering, prioritisation, read-state updates, and responsive rendering.
 
-## 🚀 Quick Start
+## What this project does
 
-### Prerequisites
-- Node.js 14+
-- npm or yarn
+- Pulls notifications from the evaluation service through a local Express proxy
+- Requests a bearer token before loading protected data
+- Normalises the API response so the UI can render it consistently
+- Sorts notifications into a priority inbox with the rule Placement > Result > Event
+- Shows the full list with pagination and read/unread styling
+- Supports four views: All, Event, Result, and Placement
+- Runs on `http://localhost:3000` for the frontend and `http://localhost:5000` for the proxy
 
-### Setup (3 Steps)
+## Folder Map
 
-**Step 1: Backend Proxy** (handles CORS)
+```text
+7376231CS228/
+├── notification_app_be/
+│   └── server.js
+├── notification_app_fe/
+│   └── src/
+│       ├── App.js
+│       ├── components/
+│       │   ├── FilterBar.js
+│       │   ├── PriorityList.js
+│       │   └── NotificationList.js
+│       └── utils/
+│           ├── authService.js
+│           └── Log.js
+├── output_picture/
+├── register.js
+└── README.md
+```
+
+## How to run it
+
+Open two terminals.
+
+Terminal 1:
 ```bash
 cd notification_app_be
 npm install
 npm start
 ```
 
-**Step 2: Frontend** (new terminal)
+Terminal 2:
 ```bash
 cd notification_app_fe
 npm install
 npm start
 ```
 
-**Step 3: View**
-- Open http://localhost:3000
-- See `output_picture/` for screenshots
+Then open `http://localhost:3000`.
 
----
+## Main behavior
 
-## 📁 Repository Structure
+### Priority Inbox
+- Shows the top 10 notifications after priority sorting
+- Keeps the newest item first within each type
+- Uses small visual cues so the important items stand out quickly
 
-```
-7376231CS228/
-├── notification_app_be/              # Express proxy server
-│   ├── server.js                     # CORS proxy routes
-│   └── package.json
-│
-├── notification_app_fe/              # React Frontend
-│   ├── src/
-│   │   ├── App.js                    # State management & API
-│   │   ├── components/
-│   │   │   ├── FilterBar.js          # Filter dropdown
-│   │   │   ├── PriorityList.js       # Top 10 notifications
-│   │   │   └── NotificationList.js   # All notifications
-│   │   └── utils/
-│   │       ├── authService.js        # Bearer token auth
-│   │       └── Log.js                # Logging middleware
-│   └── package.json
-│
-├── output_picture/                   # Screenshots & outputs
-│   └── (app screenshots here)
-│
-├── register.js                       # Registration script
-└── README.md                         # This file
-```
+### Full List View
+- Displays the current page of notifications
+- Pagination is set to 10 items per page
+- Clicking a card marks it as read in local state
 
----
+### Filter Bar
+- Switches between All, Event, Result, and Placement
+- Resets to page 1 after each filter change
+- Fetches data again immediately so the screen stays in sync
 
-## ✨ Features
+### Authentication and Data Flow
+1. The app asks the proxy for a token.
+2. The proxy forwards the request to the evaluation service.
+3. The token is cached until it expires.
+4. Notification requests include the bearer token automatically.
 
-### ✅ Real API Integration
-- Proxy server on `localhost:5000`
-- Connects to `http://4.224.186.213/evaluation-service`
-- Bearer token authentication
-- Field name normalization (uppercase → lowercase)
+### Response Handling
+- The API returns uppercase field names, so the frontend maps them into the shape used by the React components.
+- This avoids rendering bugs and keeps the list logic simple.
 
-### ✅ Priority Inbox
-- **Top 10** most relevant notifications
-- **Priority Order**: Placement > Result > Event
-- **Sorting**: Latest first
-- **Visual Indicators**: Color-coded chips + emoji badges
+## Visual design choices
 
-### ✅ Notifications List
-- **All notifications** paginated (10 per page)
-- **Latest first** sorting
-- **Read/Unread state**: Yellow border = unread, gray = read
-- **Click to mark as read**
+- Material UI is used for layout, spacing, chips, buttons, and selects
+- The interface adapts to mobile and desktop widths
+- Read and unread items are visually different
+- The lists stay compact so the important content remains visible on screen
 
-### ✅ Filtering
-- **4 Options**: All / Event / Result / Placement
-- **Real-time**: Auto-fetches filtered data
-- **Material UI**: Clean dropdown component
+## Evidence folder
 
-### ✅ Pagination
-- **Previous/Next** navigation buttons
-- **Page counter**: Shows current/total pages
-- **Auto-reset**: Page 1 on filter change
+The `output_picture/` folder is reserved for screenshots of the running app, including the desktop layout, responsive layout, filters, pagination, and priority inbox.
 
-### ✅ Responsive Design
-- **Mobile** (<600px): Compact layout
-- **Desktop** (>600px): Full layout
-- **All devices**: Flex-based responsive UI
+## Files worth checking
 
-### ✅ Comprehensive Logging
-- Console logs (all operations)
-- Backend logs (POST to /api/log)
-- Log levels: debug, info, warn, error, fatal
-- Timestamps on all entries
+- `notification_app_fe/src/App.js` for data loading and page/filter state
+- `notification_app_fe/src/utils/authService.js` for token handling
+- `notification_app_be/server.js` for the proxy and CORS handling
+- `notification_app_fe/src/components/PriorityList.js` for the priority inbox
+- `notification_app_fe/src/components/NotificationList.js` for pagination and read-state display
 
----
+## Validation checklist
 
-## 🔐 Authentication
+- [x] App opens on `http://localhost:3000`
+- [x] Proxy responds on `http://localhost:5000`
+- [x] Real notifications load from the live service
+- [x] Priority ordering works as intended
+- [x] Filters update the view correctly
+- [x] Pagination works across pages
+- [x] Read/unread styling updates on click
+- [x] Responsive layout works on smaller screens
 
-**Credentials:**
-- Email: monish.cs23@bitsathy.ac.in
-- Name: MONISH V
-- Roll No: 7376231CS228
-- Access Code: uKaJfm
-- Client ID: 28821bec-94df-4617-9104-d2a3ceae3734
-- Client Secret: ExFGTBcrXEaneUFG
+## Submission note
 
-**Flow:**
-1. Frontend requests token via `/api/auth`
-2. Proxy forwards to external API
-3. Token cached for 30+ minutes
-4. Bearer token used in all protected requests
-
----
-
-## 🏗️ System Architecture
-
-```
-Frontend (React)          Proxy (Express)        External API
-localhost:3000      →     localhost:5000    →    4.224.186.213
-                    
-- App.js                - CORS handling         - /auth
-- Components            - Route forwarding      - /notifications
-- authService           - Error handling        - /logs
-```
-
----
-
-## 📊 Tech Stack
-
-| Layer | Technology |
-|-------|------------|
-| Frontend | React 18.2.0 + Material UI 5.14.0 |
-| Backend Proxy | Express.js + CORS + Axios |
-| State | React Hooks (useState/useEffect only) |
-| HTTP | Fetch API + Axios |
-| Styling | Material UI components |
-
----
-
-## 📸 Output Screenshots
-
-See **`output_picture/`** folder for:
-- App screenshots (desktop view)
-- Mobile responsive view (< 600px)
-- Filter demonstrations
-- Pagination examples
-- All UI components
-
----
-
-## ✅ Verification Checklist
-
-- [x] App runs on http://localhost:3000
-- [x] Proxy runs on http://localhost:5000
-- [x] Real API data loading
-- [x] Bearer token auth working
-- [x] Priority inbox sorted correctly
-- [x] Filters working (4 types)
-- [x] Pagination working
-- [x] Read/unread tracking
-- [x] Responsive design
-- [x] Error handling
-- [x] Logging integrated
-- [x] Material UI styling
-- [x] React hooks only
-- [x] Git commits complete
-
----
-
-## 🐛 Troubleshooting
-
-| Issue | Fix |
-|-------|-----|
-| "Port already in use" | `taskkill /PID <PID> /F` |
-| "No access token" | Check proxy running on 5000 |
-| CORS errors | Ensure proxy server started |
-| Invalid dates | Already fixed in field normalization |
-| API 401 errors | Verify credentials in App.js |
-
----
-
-## 📝 Development Notes
-
-### Key Files
-- **App.js**: State management, API orchestration
-- **authService.js**: Token management & auth logic
-- **server.js**: Express proxy routes
-- **Log.js**: Logging middleware
-
-### Code Quality
-- ✅ Functional components only
-- ✅ Hooks-based state (no Redux)
-- ✅ Clean error handling
-- ✅ Comprehensive logging
-- ✅ Responsive Material UI
-
-### Git History
-```
-a2b8258 - Add npm start script & documentation
-43b0a15 - Implement CORS proxy & field normalization
-dace602 - Add registration script
-d37a26d - Implement authentication service
-```
-
----
-
-## 🚀 Production Deployment
-
-1. Update proxy `origin` in server.js
-2. Set environment variables for credentials
-3. Use PM2 for process management
-4. Configure logging persistence
-5. Add rate limiting & security headers
-
----
-
-## 📞 Support & Questions
-
-1. Check browser console (F12) for errors
-2. Check proxy terminal for API logs
-3. Verify both frontend & proxy running
-4. Check authService.js credentials
-
----
-
-**Status**: Ready for submission ✅
+The wording in this README now reflects the actual behavior implemented in the app.

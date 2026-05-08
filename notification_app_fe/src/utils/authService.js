@@ -1,4 +1,4 @@
-const API_BASE_URL = 'http://4.224.186.213/evaluation-service';
+const API_BASE_URL = 'http://localhost:5000/api';
 
 // Store auth credentials (you'll provide these)
 const AUTH_CREDENTIALS = {

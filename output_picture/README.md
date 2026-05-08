@@ -1,26 +1,15 @@
 # Output Pictures
 
-This folder contains screenshots and output demonstrations of the Campus Notifications application.
+This folder is reserved for proof-of-run images from the live campus notifications app.
 
-## Screenshots Included:
-- Desktop view (full UI)
-- Mobile responsive view
-- Filter demonstrations (All/Event/Result/Placement)
-- Pagination examples
-- Priority inbox display
-- All notifications view
+## Suggested screenshots
+- Desktop layout on `http://localhost:3000`
+- Mobile layout at a narrow width
+- Priority inbox view
+- Filter changes across All, Event, Result, and Placement
+- Pagination state changes
 
-## How to Add Screenshots:
-1. Take screenshots of the running application at http://localhost:3000
-2. Save them as PNG/JPG files
-3. Place them in this folder
-4. Update README.md with references if needed
-
-## Current Application Features Visible:
-✅ Real-time notifications from API
-✅ Priority inbox (top 10 sorted by priority)
-✅ Filtering by notification type
-✅ Pagination controls
-✅ Read/unread state indicators
-✅ Responsive Material UI design
-✅ User-friendly error handling
+## Notes
+- Keep images current with the version being submitted
+- Use clear filenames such as `desktop-home.png` or `mobile-home.png`
+- Reference these images from the main README if needed
