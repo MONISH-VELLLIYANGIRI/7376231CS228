@@ -12,9 +12,10 @@ const App = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [readNotifications, setReadNotifications] = useState(new Set());
+  const [totalPages, setTotalPages] = useState(1);
 
   const itemsPerPage = 10;
-  const apiBaseUrl = '/evaluation-service/notifications';
+  const apiBaseUrl = 'http://4.224.186.213/evaluation-service/notifications';
 
   // Fetch notifications from API
   const fetchNotifications = async (filterType, pageNum) => {
@@ -32,7 +33,7 @@ const App = () => {
       const response = await fetch(url);
       
       if (!response.ok) {
-        throw new Error(`API error: ${response.status}`);
+        throw new Error(`API Error: ${response.status} ${response.statusText}`);
       }
 
       const data = await response.json();
@@ -42,11 +43,20 @@ const App = () => {
         ? data 
         : (data.notifications || []);
 
+      // Validate notification structure
+      if (normalizedNotifications.length > 0) {
+        const firstNotif = normalizedNotifications[0];
+        if (!firstNotif.id || !firstNotif.type || !firstNotif.message || !firstNotif.timestamp) {
+          Log('frontend', 'warn', 'api', 'Notification structure may not match expected format');
+        }
+      }
+
       setNotifications(normalizedNotifications);
+      setTotalPages(data.totalPages || Math.ceil(normalizedNotifications.length / itemsPerPage));
       Log('frontend', 'info', 'api', `Successfully fetched ${normalizedNotifications.length} notifications`);
     } catch (err) {
       Log('frontend', 'error', 'api', `Failed to fetch notifications: ${err.message}`);
-      setError('Failed to load notifications. Please try again.');
+      setError(`Failed to load notifications: ${err.message}. Please check your internet connection and try again.`);
       setNotifications([]);
     } finally {
       setLoading(false);
@@ -60,7 +70,7 @@ const App = () => {
 
   // Handle filter change
   const handleFilterChange = (newFilter) => {
-    Log('frontend', 'info', 'component', `Filter changed to: ${newFilter}`);
+    Log('frontend', 'info', 'component', `Filter changed from '${filter}' to '${newFilter}'`);
     setFilter(newFilter);
     setPage(1);
     fetchNotifications(newFilter, 1);
@@ -68,18 +78,22 @@ const App = () => {
 
   // Handle pagination
   const handleNextPage = () => {
-    Log('frontend', 'info', 'component', `Moving to next page`);
-    const newPage = page + 1;
-    setPage(newPage);
-    fetchNotifications(filter, newPage);
+    if (page < totalPages) {
+      Log('frontend', 'info', 'component', `Moving to next page (${page} -> ${page + 1})`);
+      const newPage = page + 1;
+      setPage(newPage);
+      fetchNotifications(filter, newPage);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
   };
 
   const handlePrevPage = () => {
     if (page > 1) {
-      Log('frontend', 'info', 'component', `Moving to previous page`);
+      Log('frontend', 'info', 'component', `Moving to previous page (${page} -> ${page - 1})`);
       const newPage = page - 1;
       setPage(newPage);
       fetchNotifications(filter, newPage);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   };
 
@@ -104,14 +118,23 @@ const App = () => {
       .slice(0, 10);
   };
 
+  const unreadCount = notifications.length - readNotifications.size;
+
   return (
     <Container maxWidth="lg" sx={{ py: 4 }}>
       <Box sx={{ mb: 4 }}>
-        <h1 style={{ margin: '0 0 24px 0' }}>Campus Notifications</h1>
+        <h1 style={{ margin: '0 0 8px 0', fontSize: '2.5rem' }}>Campus Notifications</h1>
+        <p style={{ margin: 0, color: '#666', fontSize: '0.95rem' }}>
+          {unreadCount} unread notification{unreadCount !== 1 ? 's' : ''}
+        </p>
       </Box>
 
       {error && (
-        <Alert severity="error" sx={{ mb: 3 }}>
+        <Alert 
+          severity="error" 
+          onClose={() => setError(null)}
+          sx={{ mb: 3, cursor: 'pointer' }}
+        >
           {error}
         </Alert>
       )}
@@ -122,7 +145,7 @@ const App = () => {
       />
 
       {loading && (
-        <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
+        <Box sx={{ display: 'flex', justifyContent: 'center', py: 6 }}>
           <CircularProgress />
         </Box>
       )}
@@ -130,8 +153,10 @@ const App = () => {
       {!loading && notifications.length > 0 && (
         <>
           <Box sx={{ mb: 4 }}>
-            <Paper sx={{ p: 3 }}>
-              <h2 style={{ marginTop: 0 }}>Priority Inbox</h2>
+            <Paper sx={{ p: 3, boxShadow: 2 }}>
+              <h2 style={{ marginTop: 0, marginBottom: 16, color: '#333' }}>
+                🔥 Priority Inbox (Top 10)
+              </h2>
               <PriorityList
                 notifications={getPriorityNotifications()}
                 readNotifications={readNotifications}
@@ -141,8 +166,10 @@ const App = () => {
           </Box>
 
           <Box sx={{ mb: 4 }}>
-            <Paper sx={{ p: 3 }}>
-              <h2 style={{ marginTop: 0 }}>All Notifications</h2>
+            <Paper sx={{ p: 3, boxShadow: 2 }}>
+              <h2 style={{ marginTop: 0, marginBottom: 16, color: '#333' }}>
+                📬 All Notifications
+              </h2>
               <NotificationList
                 notifications={notifications}
                 readNotifications={readNotifications}
@@ -151,34 +178,59 @@ const App = () => {
             </Paper>
           </Box>
 
-          <Box sx={{ display: 'flex', gap: 2, justifyContent: 'center' }}>
+          <Box sx={{ display: 'flex', gap: 2, justifyContent: 'center', alignItems: 'center' }}>
             <button
               onClick={handlePrevPage}
               disabled={page === 1}
               style={{
-                padding: '8px 16px',
+                padding: '10px 20px',
                 cursor: page === 1 ? 'not-allowed' : 'pointer',
                 opacity: page === 1 ? 0.5 : 1,
+                backgroundColor: '#1976d2',
+                color: 'white',
+                border: 'none',
+                borderRadius: '4px',
+                fontSize: '14px',
+                fontWeight: 500,
               }}
             >
-              Previous
+              ← Previous
             </button>
-            <span style={{ display: 'flex', alignItems: 'center', padding: '0 8px' }}>
-              Page {page}
+            <span style={{ 
+              display: 'flex', 
+              alignItems: 'center', 
+              padding: '0 12px',
+              fontWeight: 600,
+              fontSize: '16px',
+              minWidth: '120px',
+              justifyContent: 'center'
+            }}>
+              Page {page} of {totalPages}
             </span>
             <button
               onClick={handleNextPage}
-              style={{ padding: '8px 16px', cursor: 'pointer' }}
+              disabled={page >= totalPages}
+              style={{ 
+                padding: '10px 20px', 
+                cursor: page >= totalPages ? 'not-allowed' : 'pointer',
+                opacity: page >= totalPages ? 0.5 : 1,
+                backgroundColor: '#1976d2',
+                color: 'white',
+                border: 'none',
+                borderRadius: '4px',
+                fontSize: '14px',
+                fontWeight: 500,
+              }}
             >
-              Next
+              Next →
             </button>
           </Box>
         </>
       )}
 
       {!loading && notifications.length === 0 && !error && (
-        <Box sx={{ textAlign: 'center', py: 4 }}>
-          <p>No notifications found.</p>
+        <Box sx={{ textAlign: 'center', py: 6 }}>
+          <p style={{ fontSize: '18px', color: '#999' }}>📭 No notifications found.</p>
         </Box>
       )}
     </Container>
