@@ -3,7 +3,7 @@
 This folder is reserved for proof-of-run images from the live campus notifications app.
 
 ## Suggested screenshots
-- Desktop layout on `http://localhost:3000`
+- Desktop layout on localhost 3000
 - Mobile layout at a narrow width
 - Priority inbox view
 - Filter changes across All, Event, Result, and Placement

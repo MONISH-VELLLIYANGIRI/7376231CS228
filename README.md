@@ -10,48 +10,15 @@ This submission is a React notification dashboard built around a live campus API
 - Sorts notifications into a priority inbox with the rule Placement > Result > Event
 - Shows the full list with pagination and read/unread styling
 - Supports four views: All, Event, Result, and Placement
-- Runs on `http://localhost:3000` for the frontend and `http://localhost:5000` for the proxy
+- Runs on localhost 3000 for the frontend and localhost 5000 for the proxy
 
 ## Folder Map
 
-```text
-7376231CS228/
-├── notification_app_be/
-│   └── server.js
-├── notification_app_fe/
-│   └── src/
-│       ├── App.js
-│       ├── components/
-│       │   ├── FilterBar.js
-│       │   ├── PriorityList.js
-│       │   └── NotificationList.js
-│       └── utils/
-│           ├── authService.js
-│           └── Log.js
-├── output_picture/
-├── register.js
-└── README.md
-```
+The repository is organised into a backend proxy folder, a React frontend folder, a screenshot folder, the registration script, and this README.
 
 ## How to run it
 
-Open two terminals.
-
-Terminal 1:
-```bash
-cd notification_app_be
-npm install
-npm start
-```
-
-Terminal 2:
-```bash
-cd notification_app_fe
-npm install
-npm start
-```
-
-Then open `http://localhost:3000`.
+Start the backend proxy first, then start the frontend app in a second terminal. Once both are running, open localhost 3000 in the browser.
 
 ## Main behavior
 
@@ -89,20 +56,20 @@ Then open `http://localhost:3000`.
 
 ## Evidence folder
 
-The `output_picture/` folder is reserved for screenshots of the running app, including the desktop layout, responsive layout, filters, pagination, and priority inbox.
+The output_picture folder is reserved for screenshots of the running app, including the desktop layout, responsive layout, filters, pagination, and priority inbox.
 
 ## Files worth checking
 
-- `notification_app_fe/src/App.js` for data loading and page/filter state
-- `notification_app_fe/src/utils/authService.js` for token handling
-- `notification_app_be/server.js` for the proxy and CORS handling
-- `notification_app_fe/src/components/PriorityList.js` for the priority inbox
-- `notification_app_fe/src/components/NotificationList.js` for pagination and read-state display
+- notification_app_fe/src/App.js for data loading and page/filter state
+- notification_app_fe/src/utils/authService.js for token handling
+- notification_app_be/server.js for the proxy and CORS handling
+- notification_app_fe/src/components/PriorityList.js for the priority inbox
+- notification_app_fe/src/components/NotificationList.js for pagination and read-state display
 
 ## Validation checklist
 
-- [x] App opens on `http://localhost:3000`
-- [x] Proxy responds on `http://localhost:5000`
+- [x] App opens on localhost 3000
+- [x] Proxy responds on localhost 5000
 - [x] Real notifications load from the live service
 - [x] Priority ordering works as intended
 - [x] Filters update the view correctly
