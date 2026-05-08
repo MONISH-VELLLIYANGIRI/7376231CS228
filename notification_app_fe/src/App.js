@@ -3,7 +3,7 @@ import { Container, Paper, Box, Alert, CircularProgress } from '@mui/material';
 import FilterBar from './components/FilterBar';
 import PriorityList from './components/PriorityList';
 import NotificationList from './components/NotificationList';
-import Log from '../../logging_middleware/Log';
+import Log from './utils/Log';
 
 const App = () => {
   const [notifications, setNotifications] = useState([]);
@@ -64,6 +64,7 @@ const App = () => {
   };
 
   // Initial load
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     fetchNotifications(filter, page);
   }, []);
