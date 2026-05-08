@@ -16,7 +16,7 @@ const App = () => {
   const [totalPages, setTotalPages] = useState(1);
 
   const itemsPerPage = 10;
-  const apiBaseUrl = 'http://4.224.186.213/evaluation-service/notifications';
+  const apiBaseUrl = 'http://localhost:5000/api/notifications';
 
   // Fetch notifications from API with Bearer token
   const fetchNotifications = async (filterType, pageNum) => {
@@ -53,9 +53,17 @@ const App = () => {
       const data = await response.json();
       
       // Normalize notifications structure
-      const normalizedNotifications = Array.isArray(data) 
+      let normalizedNotifications = Array.isArray(data) 
         ? data 
         : (data.notifications || []);
+
+      // Normalize field names (API returns uppercase, frontend expects lowercase)
+      normalizedNotifications = normalizedNotifications.map(notif => ({
+        id: notif.ID || notif.id,
+        type: notif.Type || notif.type,
+        message: notif.Message || notif.message,
+        timestamp: notif.Timestamp || notif.timestamp,
+      }));
 
       // Validate notification structure
       if (normalizedNotifications.length > 0) {
