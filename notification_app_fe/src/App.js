@@ -63,10 +63,12 @@ const App = () => {
     }
   };
 
-  // Initial load on mount only (intentional empty dependency array)
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+  // Load notifications on component mount only
+  // Filter/page changes are handled by dedicated handler functions
   useEffect(() => {
     fetchNotifications(filter, page);
+    // Intentionally empty - we only want to load once on mount
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Handle filter change
