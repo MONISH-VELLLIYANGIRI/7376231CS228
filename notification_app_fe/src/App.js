@@ -63,7 +63,7 @@ const App = () => {
     }
   };
 
-  // Initial load
+  // Initial load on mount only (intentional empty dependency array)
   // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     fetchNotifications(filter, page);
